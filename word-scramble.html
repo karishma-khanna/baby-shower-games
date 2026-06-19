@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baby Word Scramble · Baby Shower Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wall:      #FBF6EC;   /* warm nursery cream */
+    --wall-2:    #F4ECDD;
+    --sage:      #9FC4A4;
+    --sage-dk:   #6FA078;
+    --butter:    #F6CE6B;
+    --butter-dk: #E0AE3C;
+    --coral:     #F0998A;
+    --coral-dk:  #D9705F;
+    --sky:       #A9D2E5;
+    --sky-dk:    #6FAAC4;
+    --ink:       #5B4B43;   /* soft brown ink */
+    --ink-soft:  #9A8b80;
+    --tile:      #FFFDF8;
+    --good:      #6FA078;
+    --bad:       #D9705F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Nunito',sans-serif;color:var(--ink);
+    min-height:100vh;min-height:100dvh;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(159,196,164,.20), transparent 38%),
+      radial-gradient(circle at 88% 90%, rgba(169,210,229,.22), transparent 40%),
+      var(--wall);
+    overflow-x:hidden;
+  }
+  /* dotted nursery wallpaper */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:radial-gradient(var(--wall-2) 1.5px, transparent 1.6px);
+    background-size:22px 22px;
+  }
+  .stage{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:20px 18px 40px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+
+  /* ===== HEADER ===== */
+  header{text-align:center;margin-bottom:8px;}
+  .bunting{display:flex;justify-content:center;gap:0;margin-bottom:10px;}
+  .flag{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:20px solid var(--sage);margin:0 2px;}
+  .flag:nth-child(2n){border-top-color:var(--coral);}
+  .flag:nth-child(3n){border-top-color:var(--butter);}
+  .flag:nth-child(4n){border-top-color:var(--sky);}
+  h1{font-family:'Baloo 2',cursive;font-size:clamp(30px,8vw,44px);line-height:1;color:var(--ink);}
+  h1 .em{font-size:.8em;}
+  .sub{font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:4px;}
+
+  /* ===== CARD ===== */
+  .card{
+    background:var(--tile);border-radius:26px;padding:22px 18px 24px;margin-top:16px;
+    box-shadow:0 10px 0 rgba(91,75,67,.06), 0 14px 30px rgba(91,75,67,.12);
+    border:3px solid #fff;flex:1;display:flex;flex-direction:column;
+  }
+
+  /* progress pills */
+  .pills{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .pill{width:13px;height:13px;border-radius:50%;background:var(--wall-2);transition:.3s;}
+  .pill.done{background:var(--sage);}
+  .pill.current{background:var(--butter);transform:scale(1.3);}
+
+  .round-info{text-align:center;font-weight:800;color:var(--ink-soft);font-size:13px;letter-spacing:1px;text-transform:uppercase;}
+
+  .clue{
+    text-align:center;background:var(--wall);border-radius:16px;padding:14px 16px;margin:14px 0 6px;
+    border:2px dashed var(--sage);
+  }
+  .clue .clue-em{font-size:40px;display:block;line-height:1;margin-bottom:6px;}
+  .clue .clue-label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sage-dk);}
+  .clue .clue-text{font-size:15px;font-weight:700;margin-top:3px;color:var(--ink);}
+
+  /* answer slots */
+  .answer{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:58px;margin:18px 0 10px;align-items:center;}
+  .slot{
+    width:46px;height:54px;border-radius:13px;background:var(--wall);border:2.5px dashed #d9cdb8;
+    display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-size:26px;
+    color:var(--ink);cursor:pointer;transition:transform .1s, background .15s, border-color .15s;
+  }
+  .slot.filled{background:var(--butter);border:2.5px solid var(--butter-dk);border-style:solid;box-shadow:0 4px 0 var(--butter-dk);}
+  .slot.filled:active{transform:translateY(2px);box-shadow:0 2px 0 var(--butter-dk);}
+  .answer.win .slot{background:var(--sage);border-color:var(--sage-dk);box-shadow:0 4px 0 var(--sage-dk);color:#fff;}
+  .answer.shake{animation:shake .4s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+  /* letter bank */
+  .bank{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:8px 0 4px;}
+  .tile{
+    width:50px;height:56px;border-radius:14px;background:var(--tile);border:2.5px solid var(--sky);
+    display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-size:28px;
+    color:var(--ink);cursor:pointer;box-shadow:0 5px 0 var(--sky-dk);transition:transform .08s, box-shadow .08s, opacity .15s;
+    user-select:none;
+  }
+  .tile:hover{transform:translateY(-2px);}
+  .tile:active{transform:translateY(3px);box-shadow:0 2px 0 var(--sky-dk);}
+  .tile.used{opacity:0;pointer-events:none;transform:scale(.5);}
+
+  /* controls */
+  .tools{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+  .tool{
+    font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;border:none;cursor:pointer;border-radius:50px;
+    padding:11px 18px;transition:transform .1s, filter .15s;display:inline-flex;align-items:center;gap:6px;
+  }
+  .tool:active{transform:scale(.95);}
+  .tool.shuffle{background:var(--sky);color:#fff;box-shadow:0 4px 0 var(--sky-dk);}
+  .tool.hint{background:var(--butter);color:var(--ink);box-shadow:0 4px 0 var(--butter-dk);}
+  .tool.clear{background:var(--wall-2);color:var(--ink-soft);box-shadow:0 4px 0 #d9cdb8;}
+  .tool:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+
+  .feedback{text-align:center;font-family:'Baloo 2',cursive;font-size:20px;min-height:26px;margin-top:14px;}
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  .next-wrap{text-align:center;margin-top:14px;min-height:54px;}
+  .btn-next{
+    font-family:'Baloo 2',cursive;font-size:19px;border:none;cursor:pointer;border-radius:50px;
+    padding:13px 34px;background:var(--coral);color:#fff;box-shadow:0 5px 0 var(--coral-dk);
+    transition:transform .1s;display:none;
+  }
+  .btn-next.show{display:inline-block;}
+  .btn-next:active{transform:translateY(3px);box-shadow:0 2px 0 var(--coral-dk);}
+
+  /* ===== START + RESULTS overlays ===== */
+  .screen{display:none;flex-direction:column;flex:1;}
+  .screen.active{display:flex;}
+
+  .start-card{text-align:center;}
+  .start-card .big-em{font-size:60px;}
+  .lede{font-size:15px;font-weight:600;line-height:1.5;max-width:380px;margin:12px auto 0;color:var(--ink);}
+  .howto{background:var(--wall);border-radius:16px;padding:16px;margin:18px auto 0;max-width:400px;text-align:left;}
+  .howto .row{display:flex;gap:10px;align-items:flex-start;font-weight:700;font-size:14px;padding:5px 0;}
+  .howto .n{font-family:'Baloo 2',cursive;background:var(--sage);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .btn-big{
+    font-family:'Baloo 2',cursive;font-size:22px;border:none;cursor:pointer;border-radius:50px;margin-top:22px;
+    padding:15px 44px;background:var(--sage);color:#fff;box-shadow:0 6px 0 var(--sage-dk);transition:transform .1s;
+  }
+  .btn-big:active{transform:translateY(3px);box-shadow:0 3px 0 var(--sage-dk);}
+
+  .results{text-align:center;}
+  .results .big-em{font-size:56px;}
+  .score-line{font-family:'Baloo 2',cursive;font-size:clamp(40px,12vw,64px);color:var(--ink);margin-top:6px;}
+  .score-line small{font-size:.45em;color:var(--ink-soft);}
+  .rank{font-family:'Baloo 2',cursive;font-size:26px;color:var(--coral-dk);margin-top:4px;}
+  .res-msg{font-size:15px;font-weight:600;max-width:380px;margin:10px auto 0;line-height:1.5;}
+
+  footer{text-align:center;margin-top:18px;font-size:12px;font-weight:700;color:var(--ink-soft);opacity:.7;}
+
+  @media(max-width:380px){
+    .tile{width:44px;height:50px;font-size:24px;}
+    .slot{width:40px;height:48px;font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <header>
+    <div class="bunting" id="bunting"></div>
+    <h1><span class="em">🧸</span> Baby Word Scramble</h1>
+    <div class="sub">Unscramble the little-one words!</div>
+  </header>
+
+  <!-- ===== START ===== -->
+  <section class="screen active" id="screen-start">
+    <div class="card start-card">
+      <div class="big-em">🍼✨</div>
+      <p class="lede">All the words are things you'd find in a baby's world. Tap the letter tiles to spell each one out before the room beats you to it!</p>
+      <div class="howto">
+        <div class="row"><span class="n">1</span><span>Read the clue and emoji hint.</span></div>
+        <div class="row"><span class="n">2</span><span>Tap letters to fill the slots — tap a slot to undo.</span></div>
+        <div class="row"><span class="n">3</span><span>Stuck? Use a <b>Hint</b> or <b>Shuffle</b> the tiles.</span></div>
+        <div class="row"><span class="n">4</span><span>Spell it right to move to the next word!</span></div>
+      </div>
+      <button class="btn-big" onclick="startGame()">Start Playing →</button>
+    </div>
+  </section>
+
+  <!-- ===== GAME ===== -->
+  <section class="screen" id="screen-game">
+    <div class="card">
+      <div class="pills" id="pills"></div>
+      <div class="round-info" id="roundInfo">Word 1 of 10</div>
+
+      <div class="clue">
+        <span class="clue-em" id="clueEm">🍼</span>
+        <span class="clue-label">Clue</span>
+        <div class="clue-text" id="clueText">A baby drinks from this</div>
+      </div>
+
+      <div class="answer" id="answer"></div>
+      <div class="bank" id="bank"></div>
+
+      <div class="tools">
+        <button class="tool shuffle" onclick="shuffleBank()">🔀 Shuffle</button>
+        <button class="tool hint" id="hintBtn" onclick="useHint()">💡 Hint</button>
+        <button class="tool clear" onclick="clearAnswer()">⌫ Clear</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="next-wrap">
+        <button class="btn-next" id="nextBtn" onclick="nextWord()">Next Word →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section class="screen" id="screen-results">
+    <div class="card results">
+      <div class="big-em">🎉🧸🎉</div>
+      <div class="score-line"><span id="finalScore">0</span><small>/<span id="finalTotal">10</span> solved</small></div>
+      <div class="rank" id="rank">Nicely done!</div>
+      <p class="res-msg" id="resMsg"></p>
+      <button class="btn-big" onclick="restart()" style="background:var(--coral);box-shadow:0 6px 0 var(--coral-dk);">Play Again ↺</button>
+    </div>
+    <footer>Made with love · Baby on the way 🌟</footer>
+  </section>
+
+</div>
+
+<script>
+/* ===== WORD LIST (edit freely!) ===== */
+const WORDS = [
+  {word:"BOTTLE",   emoji:"🍼", clue:"A baby drinks milk from this"},
+  {word:"DIAPER",   emoji:"🧷", clue:"Keeps the little bottom dry"},
+  {word:"RATTLE",   emoji:"🪇", clue:"A noisy toy you shake"},
+  {word:"STROLLER", emoji:"👶", clue:"Wheels the baby around town"},
+  {word:"PACIFIER", emoji:"😶", clue:"Soothes a fussy baby"},
+  {word:"BLANKET",  emoji:"🧶", clue:"Keeps baby cozy and warm"},
+  {word:"CRADLE",   emoji:"🛏️", clue:"A tiny bed that rocks"},
+  {word:"TEDDY",    emoji:"🧸", clue:"A cuddly stuffed friend"},
+  {word:"ONESIE",   emoji:"👕", clue:"A comfy one-piece outfit"},
+  {word:"BOOTIES",  emoji:"🧦", clue:"Tiny soft shoes for little feet"},
+  {word:"BIB",      emoji:"🥣", clue:"Catches the mealtime mess"},
+  {word:"LULLABY",  emoji:"🎵", clue:"A gentle song for sleepy time"},
+  {word:"GIGGLE",   emoji:"😄", clue:"That adorable little laugh"},
+  {word:"NAPTIME",  emoji:"😴", clue:"When baby catches some zzz's"},
+  {word:"MITTENS",  emoji:"🧤", clue:"Keeps tiny hands warm"}
+];
+
+const ROUNDS = 10; // how many words per game (<= WORDS.length)
+let deck=[], idx=0, solved=0, current=null, placed=[], hintUsed=false;
+
+/* bunting */
+const bunting=document.getElementById('bunting');
+for(let i=0;i<9;i++){const f=document.createElement('div');f.className='flag';bunting.appendChild(f);}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startGame(){
+  deck = shuffle(WORDS).slice(0, Math.min(ROUNDS, WORDS.length));
+  idx=0; solved=0;
+  document.getElementById('finalTotal').textContent = deck.length;
+  buildPills();
+  show('screen-game');
+  loadWord();
+}
+
+function buildPills(){
+  const p=document.getElementById('pills'); p.innerHTML='';
+  deck.forEach((_,i)=>{const d=document.createElement('div');d.className='pill';d.id='pill'+i;p.appendChild(d);});
+}
+function updatePills(){
+  deck.forEach((_,i)=>{
+    const el=document.getElementById('pill'+i);
+    el.className='pill'+(i<idx?' done':(i===idx?' current':''));
+  });
+}
+
+function loadWord(){
+  current=deck[idx]; placed=[]; hintUsed=false;
+  document.getElementById('roundInfo').textContent='Word '+(idx+1)+' of '+deck.length;
+  document.getElementById('clueEm').textContent=current.emoji;
+  document.getElementById('clueText').textContent=current.clue;
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').classList.remove('show');
+  document.getElementById('hintBtn').disabled=false;
+  updatePills();
+  renderAnswer();
+  renderBank(true);
+}
+
+function renderAnswer(){
+  const a=document.getElementById('answer');
+  a.className='answer'; a.innerHTML='';
+  for(let i=0;i<current.word.length;i++){
+    const s=document.createElement('div');
+    s.className='slot'+(placed[i]?' filled':'');
+    s.textContent=placed[i]?placed[i].ch:'';
+    s.onclick=()=>removeAt(i);
+    a.appendChild(s);
+  }
+}
+
+let bankLetters=[];
+function renderBank(reshuffle){
+  const b=document.getElementById('bank');
+  if(reshuffle){ bankLetters = shuffle(current.word.split('')).map((ch,i)=>({ch,id:i,used:false})); }
+  b.innerHTML='';
+  bankLetters.forEach(L=>{
+    const t=document.createElement('div');
+    t.className='tile'+(L.used?' used':'');
+    t.textContent=L.ch;
+    t.onclick=()=>placeLetter(L);
+    b.appendChild(t);
+  });
+}
+
+function placeLetter(L){
+  if(L.used) return;
+  const pos=placed.length;
+  if(pos>=current.word.length) return;
+  L.used=true;
+  placed.push(L);
+  renderAnswer(); renderBank(false);
+  if(placed.length===current.word.length) checkAnswer();
+}
+
+function removeAt(i){
+  if(!placed[i]) return;
+  const L=placed[i];
+  L.used=false;
+  placed.splice(i,1);
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  renderAnswer(); renderBank(false);
+}
+
+function clearAnswer(){
+  placed.forEach(L=>L.used=false); placed=[];
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  renderAnswer(); renderBank(false);
+}
+
+function shuffleBank(){ bankLetters=shuffle(bankLetters); renderBank(false); }
+
+function useHint(){
+  // place the next correct letter in order
+  const pos=placed.length;
+  if(pos>=current.word.length) return;
+  const needed=current.word[pos];
+  const L=bankLetters.find(x=>!x.used && x.ch===needed);
+  if(L){ if(!hintUsed){hintUsed=true;} placeLetter(L); }
+  document.getElementById('hintBtn').disabled = (placed.length>=current.word.length);
+}
+
+function checkAnswer(){
+  const guess=placed.map(L=>L.ch).join('');
+  const fb=document.getElementById('feedback');
+  if(guess===current.word){
+    document.getElementById('answer').classList.add('win');
+    fb.textContent = hintUsed ? 'Got it! 🌟' : 'Perfect! 🎉';
+    fb.className='feedback good';
+    if(!hintUsed) solved++; else solved++; // solved either way; hint still counts as solved
+    document.getElementById('pill'+idx).className='pill done';
+    document.getElementById('nextBtn').textContent = (idx+1>=deck.length)?'See Results →':'Next Word →';
+    document.getElementById('nextBtn').classList.add('show');
+    document.getElementById('hintBtn').disabled=true;
+  } else {
+    const a=document.getElementById('answer');
+    a.classList.add('shake');
+    fb.textContent='Not quite — try again!';
+    fb.className='feedback bad';
+    setTimeout(()=>{ a.classList.remove('shake'); clearAnswer(); }, 600);
+  }
+}
+
+function nextWord(){
+  if(idx+1>=deck.length){ showResults(); return; }
+  idx++; loadWord();
+}
+
+function showResults(){
+  show('screen-results');
+  document.getElementById('finalScore').textContent=solved;
+  const pct=solved/deck.length;
+  let rank, msg;
+  if(pct===1){ rank='Word Wizard! 🪄'; msg="A perfect game — not a single baby word could stump you!"; }
+  else if(pct>=0.8){ rank='Super Speller ⭐'; msg="Brilliant work! You really know your baby things."; }
+  else if(pct>=0.5){ rank='Great Effort 👏'; msg="Nicely done — a solid round of unscrambling!"; }
+  else { rank='Good Try! 🍼'; msg="These little words are tricky — thanks for playing!"; }
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('resMsg').textContent=msg;
+}
+
+function restart(){ show('screen-start'); }
+</script>
+</body>
+</html>

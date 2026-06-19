@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mom or Dad? · Baby Shower Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mom:        #E9486B;   /* warm magenta-red */
+    --mom-soft:   #FBE3E9;
+    --mom-deep:   #B82E4F;
+    --dad:        #2F7DD1;   /* strong blue */
+    --dad-soft:   #DEEAF8;
+    --dad-deep:   #1E5798;
+    --ink:        #16151A;
+    --paper:      #F7F4EC;   /* warm off-white */
+    --line:       #16151A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:'Archivo',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    min-height:100dvh;
+    overflow-x:hidden;
+  }
+
+  .stage{max-width:560px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;}
+
+  /* thick frame look */
+  .frame{border-left:3px solid var(--line);border-right:3px solid var(--line);flex:1;display:flex;flex-direction:column;background:var(--paper);}
+
+  /* ====== SCREENS ====== */
+  .screen{display:none;flex-direction:column;flex:1;}
+  .screen.active{display:flex;}
+
+  /* ---- INTRO ---- */
+  .intro{padding:0;}
+  .intro-top{
+    display:grid;grid-template-columns:1fr 1fr;border-bottom:3px solid var(--line);
+  }
+  .intro-half{padding:26px 18px;text-align:center;}
+  .intro-half.m{background:var(--mom);color:#fff;}
+  .intro-half.d{background:var(--dad);color:#fff;border-left:3px solid var(--line);}
+  .intro-half .role{font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;}
+  .intro-half .ic{font-size:38px;margin-top:6px;display:block;}
+
+  .intro-body{padding:30px 22px 26px;text-align:center;}
+  .kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--ink);opacity:.55;}
+  h1.title{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(40px,13vw,68px);line-height:.92;letter-spacing:-1.5px;margin:10px 0 2px;text-transform:uppercase;
+  }
+  h1.title .or{display:block;font-size:.42em;letter-spacing:2px;margin:6px 0;-webkit-text-stroke:1.5px var(--ink);color:transparent;}
+  h1.title .m{color:var(--mom);}
+  h1.title .d{color:var(--dad);}
+  .lede{font-size:15px;line-height:1.5;max-width:380px;margin:16px auto 0;font-weight:500;}
+  .rules{
+    text-align:left;max-width:380px;margin:22px auto 0;border-top:2px solid var(--line);border-bottom:2px solid var(--line);
+    padding:14px 0;
+  }
+  .rule{display:flex;gap:12px;align-items:flex-start;padding:6px 4px;font-size:14px;font-weight:500;}
+  .rule b{font-family:'Archivo Black',sans-serif;font-size:13px;min-width:22px;}
+
+  .name-row{display:flex;gap:10px;margin:22px auto 0;max-width:380px;}
+  .name-row input{
+    flex:1;border:2.5px solid var(--line);background:#fff;padding:13px 14px;font-family:'Archivo',sans-serif;
+    font-size:15px;font-weight:600;outline:none;
+  }
+  .name-row input:focus{box-shadow:4px 4px 0 var(--ink);}
+
+  /* ---- BIG BUTTON ---- */
+  .btn{
+    font-family:'Archivo Black',sans-serif;border:3px solid var(--line);cursor:pointer;
+    text-transform:uppercase;letter-spacing:1px;transition:transform .08s, box-shadow .08s, background .15s;
+    background:var(--ink);color:var(--paper);padding:16px 22px;font-size:17px;box-shadow:5px 5px 0 var(--ink);
+  }
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--ink);}
+  .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink);}
+  .btn.full{width:100%;margin:22px auto 0;max-width:380px;align-self:center;display:block;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none;}
+
+  /* ---- QUIZ ---- */
+  .topbar{display:flex;align-items:stretch;border-bottom:3px solid var(--line);}
+  .topbar .q-count{font-family:'Archivo Black',sans-serif;padding:12px 16px;font-size:15px;letter-spacing:1px;}
+  .topbar .who{margin-left:auto;padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;opacity:.7;}
+  .progress{height:8px;background:#e7e2d6;border-bottom:3px solid var(--line);}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--mom),var(--dad));transition:width .3s ease;}
+
+  .q-area{flex:1;display:flex;flex-direction:column;padding:26px 22px 0;}
+  .q-emoji{font-size:42px;text-align:center;}
+  .q-text{
+    font-family:'Archivo Black',sans-serif;font-size:clamp(24px,6.5vw,34px);line-height:1.06;text-align:center;
+    margin:14px auto 0;max-width:440px;letter-spacing:-.5px;
+  }
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:auto;border-top:3px solid var(--line);}
+  .choice{
+    border:none;cursor:pointer;padding:30px 16px 34px;font-family:'Archivo Black',sans-serif;font-size:20px;
+    text-transform:uppercase;letter-spacing:1px;color:#fff;transition:filter .12s, transform .12s;position:relative;
+  }
+  .choice .em{display:block;font-size:36px;margin-bottom:8px;}
+  .choice.mom{background:var(--mom);}
+  .choice.dad{background:var(--dad);border-left:3px solid var(--line);}
+  .choice:hover{filter:brightness(1.08);}
+  .choice:active{transform:scale(.97);}
+  .choice:disabled{cursor:default;}
+
+  /* reveal state */
+  .reveal-wrap{display:none;flex-direction:column;border-top:3px solid var(--line);}
+  .reveal-wrap.show{display:flex;}
+  .verdict{padding:22px;text-align:center;}
+  .verdict .tag{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;opacity:.55;}
+  .verdict .ans{font-family:'Archivo Black',sans-serif;font-size:30px;text-transform:uppercase;margin-top:4px;}
+  .verdict .ans.mom{color:var(--mom);}
+  .verdict .ans.dad{color:var(--dad);}
+  .verdict .blurb{font-size:14px;font-weight:500;margin-top:8px;line-height:1.45;max-width:400px;margin-left:auto;margin-right:auto;}
+  .judge{font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;margin-top:14px;}
+  .judge.right{color:var(--dad-deep);}
+  .judge.wrong{color:var(--mom-deep);}
+  .next-row{padding:0 22px 24px;}
+
+  /* ---- RESULTS ---- */
+  .results{padding:30px 22px;text-align:center;flex:1;display:flex;flex-direction:column;}
+  .res-kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;opacity:.55;}
+  .score-big{font-family:'Archivo Black',sans-serif;font-size:clamp(64px,20vw,110px);line-height:.9;margin:10px 0 0;}
+  .score-big .slash{-webkit-text-stroke:2px var(--ink);color:transparent;}
+  .score-label{font-family:'Archivo Black',sans-serif;font-size:22px;text-transform:uppercase;margin-top:10px;}
+  .score-msg{font-size:15px;font-weight:500;margin:12px auto 0;max-width:400px;line-height:1.5;}
+  .meter{display:flex;height:30px;border:3px solid var(--line);margin:26px auto 0;max-width:420px;box-shadow:5px 5px 0 var(--ink);}
+  .meter .mm{background:var(--mom);}.meter .dd{background:var(--dad);}
+  .meter span{display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Archivo Black',sans-serif;font-size:12px;}
+  .res-btns{display:flex;flex-direction:column;gap:12px;margin-top:28px;align-items:center;}
+
+  footer{text-align:center;padding:16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.4;border-top:3px solid var(--line);}
+
+  @media (max-width:430px){
+    .intro-body{padding:24px 18px 22px;}
+    .lede{font-size:14px;}
+    .name-row, .rules, .btn.full{max-width:none;}
+    .score-big{font-size:clamp(56px,22vw,90px);}
+    .meter{max-width:none;}
+    .btn{box-shadow:4px 4px 0 var(--ink);}
+    .btn:hover{box-shadow:5px 5px 0 var(--ink);}
+  }
+  @media (max-width:380px){
+    .q-text{font-size:22px;}
+    .choice{font-size:17px;padding:24px 8px 28px;}
+    .choice .em{font-size:32px;}
+    .q-area{padding:20px 16px 0;}
+    .verdict{padding:18px;}
+    .next-row{padding:0 16px 20px;}
+  }
+</style>
+</head>
+<body>
+<div class="stage"><div class="frame">
+
+  <!-- ============ INTRO ============ -->
+  <section class="screen intro active" id="screen-intro">
+    <div class="intro-top">
+      <div class="intro-half m"><span class="role">Mom</span><span class="ic">🤰</span></div>
+      <div class="intro-half d"><span class="role">Dad</span><span class="ic">🧔</span></div>
+    </div>
+    <div class="intro-body">
+      <div class="kicker">Baby Shower Game</div>
+      <h1 class="title"><span class="m">Mom</span><span class="or">or</span><span class="d">Dad?</span></h1>
+      <p class="lede">Who said it? Who'd do it? For each question, guess whether it's more <b>Mom</b> or more <b>Dad</b>. Tally your score at the end!</p>
+      <div class="rules">
+        <div class="rule"><b>1</b><span>Read the question aloud to the room.</span></div>
+        <div class="rule"><b>2</b><span>Everyone locks in a guess — Mom or Dad.</span></div>
+        <div class="rule"><b>3</b><span>Tap to reveal the real answer &amp; keep score.</span></div>
+      </div>
+      <div class="name-row">
+        <input id="playerName" type="text" placeholder="Your name (optional)" maxlength="20">
+      </div>
+      <button class="btn full" onclick="startQuiz()">Let's Play →</button>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="screen quiz" id="screen-quiz">
+    <div class="topbar">
+      <div class="q-count" id="qCount">Q1 / 20</div>
+      <div class="who" id="whoLabel">👀 Make your guess</div>
+    </div>
+    <div class="progress"><i id="progBar" style="width:0%"></i></div>
+
+    <div class="q-area">
+      <div class="q-emoji" id="qEmoji">👶</div>
+      <div class="q-text" id="qText">Question goes here</div>
+
+      <div class="choices" id="choices">
+        <button class="choice mom" id="cMom" onclick="guess('mom')"><span class="em">🤰</span>Mom</button>
+        <button class="choice dad" id="cDad" onclick="guess('dad')"><span class="em">🧔</span>Dad</button>
+      </div>
+
+      <div class="reveal-wrap" id="reveal">
+        <div class="verdict">
+          <div class="tag">The answer is…</div>
+          <div class="ans" id="ansText">Mom</div>
+          <div class="blurb" id="ansBlurb"></div>
+          <div class="judge" id="judge"></div>
+        </div>
+        <div class="next-row">
+          <button class="btn full" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="screen results-screen" id="screen-results">
+    <div class="results">
+      <div class="res-kicker" id="resName">Your Results</div>
+      <div class="score-big"><span id="scoreNum">0</span><span class="slash">/</span><span id="scoreTotal">20</span></div>
+      <div class="score-label" id="scoreLabel">Nice!</div>
+      <p class="score-msg" id="scoreMsg"></p>
+      <div class="meter" id="meter"></div>
+      <div class="res-btns">
+        <button class="btn full" onclick="restart()">Play Again ↺</button>
+      </div>
+    </div>
+    <footer>Made with love · Baby on the way 🌟</footer>
+  </section>
+
+</div></div>
+
+<script>
+/* ===== QUESTIONS =====
+   answer: 'mom' or 'dad'  (edit these freely for the real parents!)
+   You can also edit the text/emoji/blurb. Keep it to 20 max. */
+const QUESTIONS = [
+  {emoji:'🧷', text:"Who will change the most diapers?", answer:'dad', blurb:"Diaper duty champion!"},
+  {emoji:'😨', text:"Who's more likely to panic at the baby's first cry?", answer:'mom', blurb:"All hands on deck!"},
+  {emoji:'🎵', text:"Who will sing the baby to sleep?", answer:'dad', blurb:"Lullaby on repeat."},
+  {emoji:'🎁', text:"Who's going to spoil the baby the most?", answer:'mom', blurb:"Resistance is futile."},
+  {emoji:'😭', text:"Who will cry first when the baby is born?", answer:'mom', blurb:"Happy tears all around."},
+  {emoji:'📚', text:"Who's more likely to read every baby book cover to cover?", answer:'dad', blurb:"Doing the homework."},
+  {emoji:'📸', text:"Who will take the most baby photos?", answer:'mom', blurb:"Phone storage: full."},
+  {emoji:'📏', text:"Who's going to be stricter as a parent?", answer:'dad', blurb:"Rules are rules."},
+  {emoji:'🎒', text:"Who will pack the diaper bag?", answer:'dad', blurb:"Prepared for anything."},
+  {emoji:'🤦', text:"Who's more likely to forget the diaper bag?", answer:'dad', blurb:"Left it on the counter again."},
+  {emoji:'🤱', text:"Who's better at calming the baby down?", answer:'mom', blurb:"The magic touch."},
+  {emoji:'🔒', text:"Who will baby-proof the entire house?", answer:'dad', blurb:"Every corner covered."},
+  {emoji:'🧥', text:"Who's more likely to overdress the baby?", answer:'dad', blurb:"Just one more layer."},
+  {emoji:'🗣️', text:"Who will be the first to teach the baby a (silly) word?", answer:'dad', blurb:"Proud of it, too."},
+  {emoji:'📖', text:"Who's going to do funny voices during story time?", answer:'mom', blurb:"A one-person show."},
+  {emoji:'😟', text:"Who will be more nervous on the first day leaving the baby?", answer:'mom', blurb:"Checking the phone constantly."},
+  {emoji:'👕', text:"Who's more likely to buy too many baby clothes?", answer:'mom', blurb:"\"But it was on sale!\""},
+  {emoji:'💩', text:"Who will handle the messiest diaper without flinching?", answer:'dad', blurb:"Nerves of steel."},
+  {emoji:'🎉', text:"Who will be the \"fun\" parent?", answer:'dad', blurb:"Adventure guaranteed."},
+  {emoji:'🤗', text:"Who's going to sneak the baby an extra cuddle at night?", answer:'dad', blurb:"Just five more minutes."}
+];
+
+let idx=0, score=0, locked=false, momPicks=0, dadPicks=0, playerName='';
+const TOTAL = QUESTIONS.length;
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startQuiz(){
+  playerName = (document.getElementById('playerName').value||'').trim();
+  idx=0; score=0; momPicks=0; dadPicks=0;
+  document.getElementById('scoreTotal').textContent = TOTAL;
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked=false;
+  const q = QUESTIONS[idx];
+  document.getElementById('qCount').textContent = 'Q'+(idx+1)+' / '+TOTAL;
+  document.getElementById('progBar').style.width = ((idx)/TOTAL*100)+'%';
+  document.getElementById('qEmoji').textContent = q.emoji;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('whoLabel').textContent = '👀 Make your guess';
+
+  document.getElementById('choices').style.display='grid';
+  document.getElementById('reveal').classList.remove('show');
+  document.getElementById('cMom').disabled=false;
+  document.getElementById('cDad').disabled=false;
+}
+
+function guess(pick){
+  if(locked) return;
+  locked=true;
+  const q = QUESTIONS[idx];
+  if(pick==='mom') momPicks++; else dadPicks++;
+  const correct = (pick===q.answer);
+  if(correct) score++;
+
+  // hide choices, show reveal
+  document.getElementById('choices').style.display='none';
+  document.getElementById('cMom').disabled=true;
+  document.getElementById('cDad').disabled=true;
+
+  const ansEl = document.getElementById('ansText');
+  ansEl.textContent = q.answer==='mom' ? 'Mom 🤰' : 'Dad 🧔';
+  ansEl.className = 'ans '+q.answer;
+  document.getElementById('ansBlurb').textContent = q.blurb || '';
+
+  const judge = document.getElementById('judge');
+  if(correct){ judge.textContent='✓ You guessed it!'; judge.className='judge right'; }
+  else { judge.textContent='✗ Nope — better luck next one!'; judge.className='judge wrong'; }
+
+  document.getElementById('progBar').style.width = ((idx+1)/TOTAL*100)+'%';
+  document.getElementById('nextBtn').textContent = (idx+1>=TOTAL) ? 'See My Score →' : 'Next →';
+  document.getElementById('reveal').classList.add('show');
+}
+
+function nextQuestion(){
+  if(idx+1>=TOTAL){ showResults(); return; }
+  idx++;
+  renderQuestion();
+}
+
+function showResults(){
+  show('screen-results');
+  document.getElementById('resName').textContent = playerName ? (playerName+"'s Results") : 'Your Results';
+  document.getElementById('scoreNum').textContent = score;
+
+  const pct = score/TOTAL;
+  let label, msg;
+  if(pct===1){ label='Mind Reader! 🔮'; msg="Perfect score — you know this couple better than they know themselves."; }
+  else if(pct>=0.8){ label='Inner Circle ⭐'; msg="Outstanding! You clearly know Mom and Dad very well."; }
+  else if(pct>=0.6){ label='Pretty Sharp 👏'; msg="Solid guessing — you got the gist of these two."; }
+  else if(pct>=0.4){ label='Getting Warmer 🙂'; msg="Not bad! A few surprises in there, huh?"; }
+  else { label='Plot Twist! 🤷'; msg="Well… these two keep you guessing. Time to get to know them better!"; }
+  document.getElementById('scoreLabel').textContent = label;
+  document.getElementById('scoreMsg').textContent = msg;
+
+  // meter of how the player leaned (mom vs dad picks)
+  const total = momPicks+dadPicks || 1;
+  const mPct = Math.round(momPicks/total*100);
+  const dPct = 100-mPct;
+  const meter = document.getElementById('meter');
+  meter.innerHTML =
+    '<span class="mm" style="width:'+mPct+'%">'+(mPct>14?mPct+'% Mom':'')+'</span>'+
+    '<span class="dd" style="width:'+dPct+'%">'+(dPct>14?dPct+'% Dad':'')+'</span>';
+}
+
+function restart(){
+  document.getElementById('playerName').value = playerName;
+  show('screen-intro');
+}
+
+// allow Enter on name field to start
+document.getElementById('playerName').addEventListener('keydown',e=>{ if(e.key==='Enter') startQuiz(); });
+</script>
+</body>
+</html>
