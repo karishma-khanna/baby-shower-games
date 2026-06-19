@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍼 Baby Shower Tambola</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:       #F4A0C0;
+    --pink-dark:  #D66B98;
+    --blue:       #8FC1E8;
+    --blue-dark:  #4F97C9;
+    --bg:         #FDF7FB;
+    --ivory:      #FFFCFE;
+    --ink:        #4A4458;
+    --ink-soft:   #7A7290;
+    --gold:       #FBC56A;
+    --gold-dark:  #E5A22C;
+    --mint:       #9FD9C5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--ink);
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 8% 12%,  rgba(244,160,192,0.20) 0%, transparent 42%),
+      radial-gradient(circle at 92% 88%, rgba(143,193,232,0.20) 0%, transparent 42%);
+  }
+
+  /* floating background doodles */
+  .bg-doodles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .doodle {
+    position: absolute; font-size: 26px; opacity: 0.14;
+    animation: floaty 9s ease-in-out infinite;
+  }
+  @keyframes floaty {
+    0%,100% { transform: translateY(0) rotate(-6deg); }
+    50%     { transform: translateY(-18px) rotate(6deg); }
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 540px; margin: 0 auto; }
+
+  /* ── HEADER ── */
+  header { text-align: center; padding: 26px 20px 10px; }
+
+  .header-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(90deg, var(--pink-dark), var(--blue-dark));
+    padding: 5px 14px; border-radius: 50px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 12px rgba(214,107,152,0.3);
+  }
+
+  h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(30px, 7.5vw, 50px);
+    font-weight: 700; line-height: 1.05; letter-spacing: -0.5px;
+  }
+  h1 .pk { color: var(--pink-dark); }
+  h1 .bl { color: var(--blue-dark); }
+
+  .subtitle { font-size: 13.5px; color: var(--ink-soft); margin-top: 8px; font-weight: 600; }
+
+  /* ── BALL ── */
+  .ball-stage { display: flex; flex-direction: column; align-items: center; padding: 16px 16px 6px; }
+
+  .ball-wrap { width: 184px; height: 184px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .ball-wrap::before {
+    content: ''; position: absolute; inset: -6px; border-radius: 50%;
+    background: var(--ring, rgba(244,160,192,0.3)); filter: blur(16px); transition: background .5s;
+  }
+
+  .ball {
+    width: 156px; height: 156px; border-radius: 50%;
+    background: var(--ballbg, radial-gradient(circle at 34% 32%, #fff 0%, var(--pink) 46%, var(--pink-dark) 100%));
+    box-shadow: var(--ballsh, 0 10px 34px rgba(214,107,152,0.4)), inset -5px -6px 14px rgba(0,0,0,0.08), inset 4px 4px 10px rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center; position: relative;
+    transition: background .35s;
+  }
+  .ball.pop { animation: pop .5s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes pop {
+    0%{transform:scale(.2) rotate(-15deg);opacity:0} 55%{transform:scale(1.16) rotate(5deg);opacity:1}
+    78%{transform:scale(.94) rotate(-2deg)} 100%{transform:scale(1) rotate(0)}
+  }
+
+  .ball-number {
+    font-family: 'Fredoka', sans-serif; font-size: 66px; font-weight: 700; color: #fff;
+    text-shadow: 0 3px 10px rgba(0,0,0,.18); line-height: 1; user-select: none;
+  }
+  .ball-number.empty { font-size: 40px; opacity: .5; }
+
+  .last-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); margin-top: 12px; }
+  .ball-count { font-size: 13.5px; color: var(--ink-soft); margin-top: 4px; font-weight: 600; }
+  .ball-count strong { color: var(--ink); }
+
+  /* ── CONTROLS ── */
+  .controls { display: flex; gap: 10px; padding: 12px 16px 4px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    border: none; border-radius: 50px; font-family: 'Quicksand', sans-serif; font-weight: 700;
+    font-size: 14px; cursor: pointer; transition: transform .12s, box-shadow .12s, opacity .12s;
+    padding: 12px 22px; letter-spacing: .3px;
+  }
+  .btn:active { transform: scale(.94); }
+
+  .btn-draw {
+    background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 48%, var(--blue-dark) 100%);
+    background-size: 160% 160%; color: #fff; font-size: 17px; padding: 15px 36px;
+    box-shadow: 0 5px 20px rgba(214,107,152,.42); animation: shimmer 4s ease infinite;
+  }
+  @keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+  .btn-draw:hover { box-shadow: 0 7px 24px rgba(79,151,201,.48); }
+  .btn-draw:disabled { opacity: .4; cursor: not-allowed; animation: none; }
+
+  .btn-secondary { background: var(--ivory); color: var(--ink); border: 2px solid rgba(74,68,88,.12); box-shadow: 0 2px 8px rgba(74,68,88,.07); }
+  .btn-secondary:hover { background: #F3EEF8; }
+  .btn-auto-active { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color:#fff; box-shadow: 0 4px 16px rgba(79,151,201,.42); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 2px solid transparent; }
+  .btn-ghost:hover { color: #c53030; }
+
+  .opt-row { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 16px 12px; flex-wrap: wrap; }
+  .opt-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .speed-select {
+    border: 2px solid rgba(74,68,88,.15); border-radius: 20px; padding: 6px 12px;
+    font-family: 'Quicksand', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink);
+    background: var(--ivory); outline: none; cursor: pointer;
+  }
+  .toggle { position: relative; width: 42px; height: 24px; cursor: pointer; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: #d8d0e0; border-radius: 50px; transition: .25s; }
+  .slider::before { content:''; position:absolute; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.25s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  .toggle input:checked + .slider { background: linear-gradient(90deg, var(--pink-dark), var(--blue-dark)); }
+  .toggle input:checked + .slider::before { transform: translateX(18px); }
+
+  .divider { height: 1.5px; background: linear-gradient(to right, transparent, rgba(214,107,152,.22), rgba(79,151,201,.22), transparent); margin: 6px auto; }
+
+  /* ── RECENT ── */
+  .section { padding: 0 16px 14px; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 9px; text-align: center; }
+  .recent-chips { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; min-height: 30px; }
+  .chip { border-radius: 20px; padding: 4px 13px; font-size: 13.5px; font-weight: 700; background:#fff; border:2px solid var(--pink); color: var(--ink); }
+  .chip.bl { border-color: var(--blue-dark); }
+  .chip:first-child { background: linear-gradient(135deg, var(--pink-dark), var(--blue-dark)); color:#fff; border-color: transparent; transform: scale(1.06); }
+  .empty-hint { font-size: 13px; color: var(--ink-soft); opacity: .5; font-weight: 600; }
+
+  /* ── GRID ── */
+  .numbers-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+  .num-cell {
+    aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: clamp(9px, 2.3vw, 14px); font-weight: 700; color: rgba(74,68,88,.3);
+    background: rgba(74,68,88,.06); transition: all .35s cubic-bezier(.34,1.56,.64,1); user-select: none;
+  }
+  .num-cell.cp { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color:#fff; transform: scale(1.04); box-shadow: 0 3px 9px rgba(214,107,152,.34); }
+  .num-cell.cb { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color:#fff; transform: scale(1.04); box-shadow: 0 3px 9px rgba(79,151,201,.34); }
+  .num-cell.latest { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color:#fff; transform: scale(1.18); box-shadow: 0 4px 14px rgba(229,162,44,.5); z-index:1; }
+
+  /* ── ALL DONE ── */
+  .all-done { display:none; flex-direction:column; align-items:center; gap:8px; padding:20px; background: linear-gradient(135deg,#fff5f9,#f0f8ff); border:2px solid var(--pink); border-radius:22px; margin:0 16px 16px; text-align:center; }
+  .all-done.visible { display:flex; }
+  .all-done-emoji { font-size:38px; }
+  .all-done h2 { font-family:'Fredoka',sans-serif; font-size:23px; color:var(--ink); }
+  .all-done p { font-size:13.5px; color:var(--ink-soft); font-weight:600; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(90px); background: var(--ink); color:#fff; border-radius:50px; padding:12px 24px; font-size:14px; font-weight:600; transition: transform .3s ease; z-index:200; white-space:nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── CONFETTI ── */
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 150; }
+
+  footer { text-align:center; padding: 6px 16px 30px; font-size: 12px; color: var(--ink-soft); opacity:.7; font-weight:600; }
+
+  @media (max-width:380px){ .numbers-grid{gap:3px} .num-cell{font-size:8px} }
+</style>
+</head>
+<body>
+
+<div class="bg-doodles" id="doodles"></div>
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <header>
+    <span class="header-tag">💕 Pink or Blue? We'll Love You! 💙</span>
+    <h1><span class="pk">Baby</span> Shower <span class="bl">Tambola</span></h1>
+    <p class="subtitle">Numbers 1–90 · Tap to draw &amp; call out to your guests</p>
+  </header>
+
+  <div class="ball-stage">
+    <div class="ball-wrap" id="ballWrap">
+      <div class="ball" id="ball"><span class="ball-number empty" id="ballNumber">?</span></div>
+    </div>
+    <div class="last-label" id="lastLabel">Ready to draw!</div>
+    <div class="ball-count" id="ballCount"><strong>0</strong> of 90 drawn</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-draw" id="drawBtn" onclick="drawNumber()">🎀 Draw Number</button>
+    <button class="btn btn-secondary" id="autoBtn" onclick="toggleAuto()">▶ Auto Draw</button>
+    <button class="btn btn-ghost" onclick="confirmReset()">↺ Reset</button>
+  </div>
+
+  <div class="opt-row">
+    <span class="opt-item">⚡ Speed:
+      <select class="speed-select" id="speedSelect" onchange="updateSpeed()">
+        <option value="3000">Slow</option>
+        <option value="2000" selected>Normal</option>
+        <option value="1000">Fast</option>
+        <option value="600">Very Fast</option>
+      </select>
+    </span>
+    <span class="opt-item">🔊 Sound
+      <label class="toggle"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label>
+    </span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title">Recent Numbers</div>
+    <div class="recent-chips" id="recentChips"><span class="empty-hint">Numbers will appear here…</span></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="all-done" id="allDone">
+    <div class="all-done-emoji">🎉🍼🎉</div>
+    <h2>All 90 Numbers Drawn!</h2>
+    <p>What a game! Wishing the family endless love &amp; joy 💕💙</p>
+    <button class="btn btn-draw" onclick="confirmReset()" style="margin-top:8px">Play Again 🔄</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Full Board</div>
+    <div class="numbers-grid" id="numGrid"></div>
+  </div>
+
+  <footer>Made with love for a little one on the way 🌟</footer>
+</div>
+
+<script>
+  const state = { remaining: Array.from({length:90},(_,i)=>i+1), called: [], autoTimer:null, isAuto:false, speed:2000 };
+
+  // floating doodles
+  const emojis = ['🍼','🌸','💙','🎀','👶','💗','🧸','🎈','⭐','🦋'];
+  const dl = document.getElementById('doodles');
+  for (let i=0;i<12;i++){
+    const d=document.createElement('div'); d.className='doodle';
+    d.textContent=emojis[i%emojis.length];
+    d.style.left=Math.random()*100+'%'; d.style.top=Math.random()*100+'%';
+    d.style.animationDelay=(Math.random()*9)+'s';
+    d.style.fontSize=(20+Math.random()*22)+'px';
+    dl.appendChild(d);
+  }
+
+  // grid
+  const grid=document.getElementById('numGrid');
+  for(let i=1;i<=90;i++){ const c=document.createElement('div'); c.className='num-cell'; c.textContent=i; c.id='n'+i; grid.appendChild(c); }
+
+  const nextColor=()=> state.called.length%2===0 ? 'pink':'blue';
+
+  function applyBallColor(color){
+    const ball=document.getElementById('ball'), wrap=document.getElementById('ballWrap');
+    if(color==='pink'){
+      ball.style.background='radial-gradient(circle at 34% 32%, #fff 0%, var(--pink) 46%, var(--pink-dark) 100%)';
+      ball.style.boxShadow='0 10px 34px rgba(214,107,152,.42), inset -5px -6px 14px rgba(0,0,0,.08), inset 4px 4px 10px rgba(255,255,255,.5)';
+      wrap.style.setProperty('--ring','rgba(244,160,192,.32)');
+    } else {
+      ball.style.background='radial-gradient(circle at 34% 32%, #fff 0%, var(--blue) 46%, var(--blue-dark) 100%)';
+      ball.style.boxShadow='0 10px 34px rgba(79,151,201,.42), inset -5px -6px 14px rgba(0,0,0,.08), inset 4px 4px 10px rgba(255,255,255,.5)';
+      wrap.style.setProperty('--ring','rgba(143,193,232,.32)');
+    }
+  }
+
+  // gentle chime via WebAudio (pink=higher, blue=lower)
+  let audioCtx=null;
+  function playChime(color){
+    if(!document.getElementById('soundToggle').checked) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const notes = color==='pink' ? [659.25, 987.77] : [523.25, 783.99]; // E5+B5 / C5+G5
+      notes.forEach((f,i)=>{
+        const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+        o.type='sine'; o.frequency.value=f;
+        o.connect(g); g.connect(audioCtx.destination);
+        const t=audioCtx.currentTime + i*0.08;
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(0.18,t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+        o.start(t); o.stop(t+0.5);
+      });
+    }catch(e){}
+  }
+
+  function drawNumber(){
+    if(state.remaining.length===0) return;
+    const color=nextColor();
+    const idx=Math.floor(Math.random()*state.remaining.length);
+    const num=state.remaining.splice(idx,1)[0];
+    state.called.push({num,color});
+
+    applyBallColor(color);
+    const ball=document.getElementById('ball'), bn=document.getElementById('ballNumber');
+    ball.classList.remove('pop'); void ball.offsetWidth; ball.classList.add('pop');
+    bn.className='ball-number'; bn.textContent=num;
+    playChime(color);
+
+    document.getElementById('lastLabel').textContent='Just called: '+num;
+    document.getElementById('ballCount').innerHTML='<strong>'+state.called.length+'</strong> of 90 drawn';
+
+    if(state.called.length>1){ const p=state.called[state.called.length-2]; document.getElementById('n'+p.num).className='num-cell '+(p.color==='pink'?'cp':'cb'); }
+    document.getElementById('n'+num).className='num-cell latest';
+
+    const recent=[...state.called].reverse().slice(0,8);
+    document.getElementById('recentChips').innerHTML=recent.map((it,i)=>'<span class="chip'+(i>0&&it.color==='blue'?' bl':'')+'">'+it.num+'</span>').join('');
+
+    if(state.remaining.length===0){
+      stopAuto();
+      document.getElementById('drawBtn').disabled=true;
+      document.getElementById('autoBtn').disabled=true;
+      document.getElementById('allDone').classList.add('visible');
+      burstConfetti(true);
+      showToast('🎉 All 90 numbers drawn!');
+    } else if(state.called.length % 10 === 0){
+      burstConfetti(false);
+    }
+  }
+
+  function toggleAuto(){ state.isAuto?stopAuto():startAuto(); }
+  function startAuto(){
+    if(state.remaining.length===0) return;
+    state.isAuto=true;
+    const b=document.getElementById('autoBtn'); b.textContent='⏸ Pause'; b.className='btn btn-auto-active';
+    drawNumber();
+    state.autoTimer=setInterval(()=>{ if(state.remaining.length===0){stopAuto();return;} drawNumber(); }, state.speed);
+  }
+  function stopAuto(){ state.isAuto=false; clearInterval(state.autoTimer); const b=document.getElementById('autoBtn'); b.textContent='▶ Auto Draw'; b.className='btn btn-secondary'; }
+  function updateSpeed(){ state.speed=parseInt(document.getElementById('speedSelect').value); if(state.isAuto){stopAuto();startAuto();} }
+
+  let pendingReset=false, resetTimer=null;
+  function confirmReset(){
+    // End of game (or nothing drawn): reset immediately, no dialog.
+    if(state.remaining.length===0 || state.called.length===0){ resetGame(); return; }
+    // Mid-game: require a second tap within 3s instead of a native confirm()
+    // (native dialogs can get silently suppressed on mobile).
+    if(pendingReset){ clearTimeout(resetTimer); pendingReset=false; resetGame(); return; }
+    pendingReset=true;
+    showToast('Tap Reset again to confirm ↺');
+    resetTimer=setTimeout(()=>{ pendingReset=false; }, 3000);
+  }
+  function resetGame(){
+    pendingReset=false; clearTimeout(resetTimer);
+    stopAuto();
+    state.remaining=Array.from({length:90},(_,i)=>i+1); state.called=[];
+    const bn=document.getElementById('ballNumber'); bn.textContent='?'; bn.className='ball-number empty'; applyBallColor('pink');
+    document.getElementById('lastLabel').textContent='Ready to draw!';
+    document.getElementById('ballCount').innerHTML='<strong>0</strong> of 90 drawn';
+    document.getElementById('recentChips').innerHTML='<span class="empty-hint">Numbers will appear here…</span>';
+    document.getElementById('allDone').classList.remove('visible');
+    document.getElementById('drawBtn').disabled=false; document.getElementById('autoBtn').disabled=false;
+    for(let i=1;i<=90;i++) document.getElementById('n'+i).className='num-cell';
+    parts=[]; if(raf){ cancelAnimationFrame(raf); raf=null; } cx.clearRect(0,0,cv.width,cv.height);
+    showToast('Game reset! Ready to play 🍼');
+  }
+
+  function showToast(m){ const t=document.getElementById('toast'); if(!t)return; t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+  // ── Confetti (pink + blue) ──
+  const cv=document.getElementById('confetti'), cx=cv.getContext('2d'); let parts=[], raf=null;
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight; } resize(); addEventListener('resize',resize);
+  const COLORS=['#F4A0C0','#D66B98','#8FC1E8','#4F97C9','#FBC56A','#9FD9C5','#ffffff'];
+  function burstConfetti(big){
+    const n=big?160:60;
+    for(let i=0;i<n;i++) parts.push({
+      x:innerWidth/2+(Math.random()-.5)*120, y:innerHeight*0.32,
+      vx:(Math.random()-.5)*9, vy:Math.random()*-11-4,
+      g:0.28+Math.random()*0.1, s:6+Math.random()*7,
+      c:COLORS[(Math.random()*COLORS.length)|0], rot:Math.random()*6.28, vr:(Math.random()-.5)*.3,
+      life:0, max:90+Math.random()*40
+    });
+    if(!raf) loop();
+  }
+  function loop(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{ p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life++;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot); cx.globalAlpha=Math.max(0,1-p.life/p.max);
+      cx.fillStyle=p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6); cx.restore();
+    });
+    parts=parts.filter(p=>p.life<p.max && p.y<cv.height+40);
+    if(parts.length){ raf=requestAnimationFrame(loop); } else { raf=null; cx.clearRect(0,0,cv.width,cv.height); }
+  }
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
